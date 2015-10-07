@@ -89,198 +89,144 @@ var result = await collection.Find(filter).Sort(sort).ToListAsync();
 
 
 #### FindOneAndReplaceAsync
-```
-try
-{
- 	var collection = MyExtensions.GetMongoDBCollectionVer2<DBBasic>("mongodb://172.20.60.221", "TestDB", "Basic");
 
-	var newData = new DBBasic()
-	{
-		_id = "jacking3",
-		Money = 3333,
-		Costume = new List<int>(Enumerable.Repeat(0, 12))
-	};
-
-	// 변경 되기 이전 값을 반환한다. 실패하면 null
-	var documents = await collection.FindOneAndReplaceAsync(x => x._id == "jacking5", newData);
- 	documents.Dump();
-}
-catch (Exception ex)
-{
- 	ex.Message.Dump();
-}
 ```
+var collection = GetDBCollection<DBBasic>("Basic");
+
+var newData = new DBBasic()
+{
+_id = "jacking3",
+Money = 3333,
+Costume = new List<int>(Enumerable.Repeat(0, 12))
+};
+
+// 변경 되기 이전 값을 반환한다. 실패하면 null
+var documents = await collection.FindOneAndReplaceAsync(x => x._id == "jacking5", newData);
+```
+
 
 #### FindOneAndReplaceAsync
+
 ```
-try
+var collection = GetDBCollection<BsonDocument>("Basic");
+
+var filter = new BsonDocument("_id", "jacking3");
+
+// _id와 Level 필드만 도큐먼트에 남게된다.
+var replacement = BsonDocument.Parse("{Level: 12}");
+//var projection = BsonDocument.Parse("{x: 1}");
+//var sort = BsonDocument.Parse("{a: -1}");
+var options = new FindOneAndReplaceOptions<BsonDocument, BsonDocument>()
 {
- 	var collection = MyExtensions.GetMongoDBCollectionVer2<BsonDocument>("mongodb://172.20.60.221", "TestDB", "Basic");
+	IsUpsert = false,
+  	//Projection = projection,
+  	//ReturnDocument = returnDocument,
+  	//Sort = sort,
+  	MaxTime = TimeSpan.FromSeconds(2)
+};
 
-	var filter = new BsonDocument("_id", "jacking3");
-
-	// _id와 Level 필드만 도큐먼트에 남게된다.
-  	var replacement = BsonDocument.Parse("{Level: 12}");
-  	//var projection = BsonDocument.Parse("{x: 1}");
-  	//var sort = BsonDocument.Parse("{a: -1}");
-  	var options = new FindOneAndReplaceOptions<BsonDocument, BsonDocument>()
-  	{
-    	IsUpsert = false,
-      	//Projection = projection,
-      	//ReturnDocument = returnDocument,
-      	//Sort = sort,
-      	MaxTime = TimeSpan.FromSeconds(2)
-  	};
-
-  	var documents = await collection.FindOneAndReplaceAsync<BsonDocument>(filter, replacement, options, CancellationToken.None);
-	documents.Dump();
-}
-catch (Exception ex)
-{
- 	ex.Message.Dump();
-}
+var documents = await collection.FindOneAndReplaceAsync<BsonDocument>(filter, replacement, options, CancellationToken.None);
 ```
+
 
 #### FindOneAndUpdateAsync
+
 ```
-try
+var collection = GetDBCollection<BsonDocument>("Basic");
+
+var filter = new BsonDocument("_id", "jacking3");
+var update = BsonDocument.Parse("{$set: {Level: 3}}");
+//var projection = BsonDocument.Parse("{x: 1}");
+//var sort = BsonDocument.Parse("{a: -1}");
+var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
 {
- 	var collection = MyExtensions.GetMongoDBCollectionVer2<BsonDocument>("mongodb://172.20.60.221", "TestDB", "Basic");
-
-	var filter = new BsonDocument("_id", "jacking3");
-  	var update = BsonDocument.Parse("{$set: {Level: 3}}");
-  	//var projection = BsonDocument.Parse("{x: 1}");
-  	//var sort = BsonDocument.Parse("{a: -1}");
-  	var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
-  	{
-      	//IsUpsert = isUpsert,
-      	//Projection = projection,
-      	//ReturnDocument = returnDocument,
-      	//Sort = sort,
-      	MaxTime = TimeSpan.FromSeconds(2)
-  	};
+  	//IsUpsert = isUpsert,
+  	//Projection = projection,
+  	//ReturnDocument = returnDocument,
+  	//Sort = sort,
+  	MaxTime = TimeSpan.FromSeconds(2)
+};
 
 
-  var document = await collection.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None);
-  document.Dump();
-}
-catch (Exception ex)
-{
- 	ex.Message.Dump();
-}
+var document = await collection.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None);
 ```
 
 
 #### 동적 기능 사용하기
-```
-try
-{
-	dynamic person = new System.Dynamic.ExpandoObject();
-	person.FirstName = "Jane";
-	person.Age = 12;
-	person.PetNames = new List<dynamic> { "Sherlock", "Watson" };
 
-	var collection = MyExtensions.GetMongoDBCollectionVer2<dynamic>("mongodb://172.20.60.221", "TestDB", "Persion");
-	await collection.InsertOneAsync(person);
-}
-catch (Exception ex)
-{
-	ex.Message.Dump();
-}
+```
+dynamic person = new System.Dynamic.ExpandoObject();
+person.FirstName = "Jane";
+person.Age = 12;
+person.PetNames = new List<dynamic> { "Sherlock", "Watson" };
+
+var collection = GetDBCollection<dynamic>("Persion");
+await collection.InsertOneAsync(person);
 ```
 
 #### UTC 시간 보정해서 데이터 넣기
-```
-try
-{
-	var newData = new DBTimeData()
-	{
-		CurTime = DateTime.Now.AddHours(9)
-	};
 
-	var collection = MyExtensions.GetMongoDBCollectionVer2<DBTimeData>("mongodb://172.20.60.221", "TestDB", "TimeData");
-	await collection.InsertOneAsync(newData);
-}
-catch(Exception ex)
+```
+var newData = new DBTimeData()
 {
-	ex.Message.Dump();
-}
+	CurTime = DateTime.Now.AddHours(9)
+};
+
+var collection = GetDBCollection<DBTimeData>("TimeData");
+await collection.InsertOneAsync(newData);
 ```
 
 
 ### Update
 #### 기본 업데이트
+
 ```
 // UpdateOneAsync 는 하나만, 복수는 UpdateManyAsync
-try
-{
-	var collection = MyExtensions.GetMongoDBCollectionVer2<DBUserSkill>("mongodb://172.20.60.221", "TestDB", "Skill");
+var collection = GetDBCollection<DBUserSkill>("Skill");
 
-	var userID = "jacking";
+var userID = "jacking";
 
-	var result = await collection.UpdateOneAsync(x => x._id == userID,
-									Builders<DBUserSkill>.Update.Set(x => x.Value, 14));
-
-	result.Dump();
-	// result.MatchedCount 가 1 보다 작으면 업데이트 한 것이 없음
-}
-catch (Exception ex)
-{
- 	ex.Message.Dump();
-}
+var result = await collection.UpdateOneAsync(x => x._id == userID,
+								Builders<DBUserSkill>.Update.Set(x => x.Value, 14));
+// result.MatchedCount 가 1 보다 작으면 업데이트 한 것이 없음
 ```
+
 
 #### 도큐먼트의 내부 도큐먼트를 변경할 때
+
 ```
-try
-{
-	var collection = MyExtensions.GetMongoDBCollectionVer2<DBUserSkill>("mongodb://172.20.60.221", "TestDB", "Skill");
+var collection = GetDBCollection<DBUserSkill>("Skill");
 
-	var userID = "jacking";
-	int skillItemID = 1;
-	var newInfo = new SkillItemInfo() { Value = 101 };
+var userID = "jacking";
+int skillItemID = 1;
+var newInfo = new SkillItemInfo() { Value = 101 };
 
 
-	var filter = Builders<DBUserSkill>.Filter.And(Builders<DBUserSkill>.Filter.Eq(x => x._id, userID),
-    											Builders<DBUserSkill>.Filter.ElemMatch(x => x.SkillItems, x => x.ID == skillItemID));
+var filter = Builders<DBUserSkill>.Filter.And(Builders<DBUserSkill>.Filter.Eq(x => x._id, userID),
+  											Builders<DBUserSkill>.Filter.ElemMatch(x => x.SkillItems, x => x.ID == skillItemID));
 
-	var update = Builders<DBUserSkill>.Update.Set("SkillItems.$.Info", newInfo);
-	//or
-	//var update = Builders<DBUserSkill>.Update.Set(x => x.SkillItems.ElementAt(-1).Info, newInfo);
+var update = Builders<DBUserSkill>.Update.Set("SkillItems.$.Info", newInfo);
+//or
+//var update = Builders<DBUserSkill>.Update.Set(x => x.SkillItems.ElementAt(-1).Info, newInfo);
 
-	collection.UpdateOneAsync(filter, update);
-}
-catch (Exception ex)
-{
- 	ex.Message.Dump();
-}
+collection.UpdateOneAsync(filter, update);
 ```
 
-#### Replace
-```
-try
-{
- 	var collection = MyExtensions.GetMongoDBCollectionVer2<DBBasic>("mongodb://172.20.60.221", "TestDB", "Basic");
 
-	var userID = "jacking";
- 	var documents = await collection.Find(x=> x._id == userID).SingleAsync();
+### Replace
 
-	if( documents != null)
-	{
-		documents.Level = documents.Level + 3;
-		var result = await collection.ReplaceOneAsync(x => x._id == documents._id, documents);
-		result.Dump();
-	}
-	else
-	{
-		Console.WriteLine("없음");
-	}
-}
-catch (Exception ex)
-{
- 	ex.Message.Dump();
-}
 ```
+var collection = GetDBCollection<DBBasic>("Basic");
+
+var userID = "jacking";
+var documents = await collection.Find(x=> x._id == userID).SingleAsync();
+
+if( documents != null)
+{
+documents.Level = documents.Level + 3;
+var result = await collection.ReplaceOneAsync(x => x._id == documents._id, documents);
+```
+
 ```
 var tom = await collection.Find(x => x.Id == ObjectId.Parse("550c4aa98e59471bddf68eef"))
 	.SingleAsync();
@@ -297,46 +243,8 @@ var result = await collection.ReplaceOneAsync(x => x.Id == tom.Id, tom);
 ### Delete
 #### 삭제. 한번에 복수개를 지울 때는 DeleteManyAsync
 ```
-try
-{
- 	var collection = MyExtensions.GetMongoDBCollectionVer2<DBBasic>("mongodb://172.20.60.221", "TestDB", "Basic");
+var collection = GetDBCollection<DBBasic>("Basic");
 
-	var userID = "jacking4";
- 	var result = await collection.DeleteOneAsync(x=> x._id == userID);
- 	result.Dump();
-}
-catch (Exception ex)
-{
- 	ex.Message.Dump();
-}
-```
-
-
-
-
-### 데이터 정의
-- 객체 맵핑은 class만 가능하다
-```
-public class DBBasic
-{
-    public string _id; // 유저ID
-    public int Level;
-    public int Exp;
-    public Int64 Money;
-    public List<int> Costume; // 캐릭터 복장 아이템ID. 개수는 무조건 12
-}
-```
-
-```
-public class DBUserItem
-{
-    public Int64 _id; // Unique ID
-
-    public string UserID;
-
-    public int ItemID;
-
-    [MongoDB.Bson.Serialization.Attributes.BsonElement("AD")]
-    public DateTime AcquireDateTime; // 아이템 입수 시간
-}
+var userID = "jacking4";
+var result = await collection.DeleteOneAsync(x=> x._id == userID);
 ```

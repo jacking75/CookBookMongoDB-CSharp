@@ -153,7 +153,7 @@ var document = await collection.Find(filter).FirstOrDefaultAsync();
 ### 배열 요소 조건 검색
 
 ```
-var collection = GetDBCollection<DBBasic>("mongodb://172.20.60.221", "TestDB", "Basic");
+var collection = GetDBCollection<DBBasic>("Basic");
 
 var filter = Builders<DBBasic>.Filter.AnyGt(x => x.Costume, 0);
 var documents = await collection.Find(filter).ToListAsync();
