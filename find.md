@@ -17,7 +17,7 @@ var document = await collection.Find(x => x._id == userID).FirstOrDefaultAsync()
 ### 조건에 맞는 모든 도큐먼트를 가져온다
 
 ```
-var collection = Common.GetDBCollection<DBBasic>("Basic");
+var collection = GetDBCollection<DBBasic>("Basic");
 var documents = await collection.Find(x=> x.Level >= level).ToListAsync();
 return documents;
 ```
@@ -26,7 +26,7 @@ return documents;
 ### BsonDocument를 사용하여 검색
 
 ```
-var collection = Common.GetDBCollection<BsonDocument>("Basic");
+var collection = GetDBCollection<BsonDocument>("Basic");
 var filter = new BsonDocument("_id", userID);
 var documents = await collection.Find(filter).ToListAsync();
 
@@ -39,7 +39,7 @@ return 0;
 ```
 
 ```
-var collection = Common.GetDBCollection<DBBasic>("Basic");
+var collection = GetDBCollection<DBBasic>("Basic");
 var filter = new BsonDocument("Level", new BsonDocument("$gte", 2));
 var documents = await collection.Find(filter).ToListAsync();
 return documents;
@@ -48,7 +48,7 @@ return documents;
 ```
 // Builders를 사용할 때는 Collection은 BsonDocument를 사용해야 한다.
 
-var collection = Common.GetDBCollection<BsonDocument>("Basic");
+var collection = GetDBCollection<BsonDocument>("Basic");
 
 var builder = Builders<BsonDocument>.Filter;
 var filter = builder.Gte("Level", 2) & builder.Eq("Money", 1000);
@@ -63,6 +63,108 @@ foreach (var document in documents)
 return IDList;
 ```
 
+
+
+### 특정 필드의 데이터만 가져오기
+
+```
+var collection = GetDBCollection<BsonDocument>("Basic");
+
+// Level만
+var documents = await collection.Find(new BsonDocument()).Project(BsonDocument.Parse("{Level:1}")).ToListAsync();
+// Level, Money만
+//var documents = await collection.Find(new BsonDocument()).Project(BsonDocument.Parse("{Level:1, Money:1}")).ToListAsync();
+```
+
+```
+var collection = GetDBCollection<DBBasic>("Basic");
+var projection = Builders<DBBasic>.Projection.Include("Exp").Include("Level");
+var documents = await collection.Find(x => true).Project(projection).ToListAsync();
+```
+
+
+### 특정 필드를 제외한 데이터만 가져오기
+
+```
+var collection = GetDBCollection<BsonDocument>("Basic");
+
+// Level만
+var documents = await collection.Find(new BsonDocument()).Project(BsonDocument.Parse("{Level:0}")).ToListAsync();
+```
+
+
+#### Expression. 지정된 필드만, 필드를 다른 이름으로
+
+```
+var collection = GetDBCollection<DBBasic>("Basic");
+var projection = Builders<DBBasic>.Projection.Expression(x => new { X = x.Level, Y = x.Exp });
+var documents = await collection.Find(x => true).Project(projection).ToListAsync();
+
+//var projection = Builders<Widget>.Projection.Expression(x => new { X = x.X, Y = x.Y });
+//var projection = Builders<Widget>.Projection.Expression(x => new { Sum = x.X + x.Y });
+//var projection = Builders<Widget>.Projection.Expression(x => new { Avg = (x.X + x.Y) / 2 });
+//var projection = Builders<Widget>.Projection.Expression(x => (x.X + x.Y) / 2);
+```
+```
+// sort + projection + skip + limt
+//var userID = "jacking";
+//int userLevel = 0;
+
+var projection = BsonDocument.Parse("{Level:1, Momey:1, Exp:1}");
+var sort = BsonDocument.Parse("{Level:1}");
+var options = new FindOptions
+{
+    AllowPartialResults = true,
+    BatchSize = 20,
+    Comment = "funny",
+    //CursorType = CursorType.TailableAwait,
+    MaxTime = TimeSpan.FromSeconds(3),
+    NoCursorTimeout = true
+};
+
+var collection = GetDBCollection<DBBasic>("Basic");
+var documents = collection.Find(x => x.Exp >= 0, options).Project(projection)
+									.Sort(sort)
+									.Limit(30)
+									.Skip(0).ToListAsync();
+
+```
+
+
+### Builders 사용
+
+```
+var collection = GetDBCollection<DBBasic>("Basic");
+
+var builder = Builders<DBBasic>.Filter;
+var filter = builder.Eq(x => x._id, "jacking") & builder.Lt(x => x.Money, 1100);
+// or
+//var filter = builder.Eq("X", 10) & builder.Lt("Y", 20);
+// or
+//var filter = builder.Eq("x", 10) & builder.Lt("y", 20);
+// or
+//var filter = Builders<DBBasic>.Filter.Where(x => x._id == "jacking" && x.Money < 1100);
+
+// 첫 번째 값 또는 null
+var document = await collection.Find(filter).FirstOrDefaultAsync();
+```
+
+
+### 배열 요소 조건 검색
+
+```
+var collection = GetDBCollection<DBBasic>("mongodb://172.20.60.221", "TestDB", "Basic");
+
+var filter = Builders<DBBasic>.Filter.AnyGt(x => x.Costume, 0);
+var documents = await collection.Find(filter).ToListAsync();
+
+// 비동기로 검색 후 데이터를 비동기로 바로 사용
+var filter = new BsonDocument("x", new BsonDocument("$gte", 100));
+await collection.Find(filter).ForEachAsync(async document =>
+{
+	await ProcessDocumentAsync(document);
+});
+```
 
 
 ### 데이터 정의
