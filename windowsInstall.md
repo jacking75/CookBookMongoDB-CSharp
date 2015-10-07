@@ -21,29 +21,30 @@
 - 관리자권한으로 'mongod --install --config D:\mongodb\mongodb.conf'
 - conf 파일은 utf-8 로 한다.
 - 설정 예
-'''
-storage:
-  dbPath: D:\mongodb\data
-  engine: wiredTiger
-  journal:
-    enabled: true
 
-systemLog:
-  destination: file
-  path: D:\mongodb\logs\mongodb.log
+  ```
+  storage:
+    dbPath: D:\mongodb\data
+    engine: wiredTiger
+    journal:
+      enabled: true
 
-net:
-  bindIp: 127.0.0.1
+  systemLog:
+    destination: file
+    path: D:\mongodb\logs\mongodb.log
 
-processManagement:
-   windowsService:
-      serviceName: MongoDB
-      displayName: MongoDB
-      description: MongoDBのサービス
-#      serviceUser: <string>
-#      servicePassword: <string>
-'''
+  net:
+    bindIp: 127.0.0.1
+
+  processManagement:
+     windowsService:
+        serviceName: MongoDB
+        displayName: MongoDB
+        description: MongoDB 서비스
+  #     serviceUser: <string>
+  #     servicePassword: <string>
+  ```
 
 
 ### 참고
-- http://qiita.com/moto_pipedo/items/c3bb40370ba2792143ad 이 글을 참고했다.
+- http://qiita.com/moto_pipedo/items/c3bb40370ba2792143ad.
