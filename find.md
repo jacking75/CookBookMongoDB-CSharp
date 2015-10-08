@@ -1,10 +1,11 @@
 
-## 검색 시 첫 번째 도큐먼트만 가져온다
+### 검색 시 첫 번째 도큐먼트만 가져온다
+- 클래스 맵핑 사용     
 
 ```
 var collection = GetDBCollection<DBBasic>("Basic");
 
-// 기본으로는 Find 메소드는 없다. Find는 확장 메소드로 사용하고 싶다면
+// 기본으로는 Find 라는 메소드는 없다. Find는 확장 메소드로 사용하고 싶다면
 //using MongoDB.Driver.Core.Misc;
 //using MongoDB.Driver;
 //을 선언해야 한다.
@@ -15,7 +16,6 @@ var document = await collection.Find(x => x._id == userID).FirstOrDefaultAsync()
 
 
 ### 조건에 맞는 모든 도큐먼트를 가져온다
-
 ```
 var collection = GetDBCollection<DBBasic>("Basic");
 var documents = await collection.Find(x=> x.Level >= level).ToListAsync();
@@ -24,26 +24,31 @@ return documents;
 
 
 ### BsonDocument를 사용하여 검색
+- 도큐먼트의 필드를 수동으로 지정해야 한다.
 
 ```
 var collection = GetDBCollection<BsonDocument>("Basic");
+
+// useID와 동일한 도큐먼트들 검색.
 var filter = new BsonDocument("_id", userID);
 var documents = await collection.Find(filter).ToListAsync();
 
 if (documents.Count > 0)
 {
-   return documents[0]["Level"].AsInt32;
+   return documents[0]["Level"].AsInt32; // 도큐먼트에 저장된 타입과 다르면 예외 발생
 }
 
 return 0;
 ```
-
 ```
 var collection = GetDBCollection<DBBasic>("Basic");
+// Level이 2 이상인 도큐먼트를 검색
 var filter = new BsonDocument("Level", new BsonDocument("$gte", 2));
 var documents = await collection.Find(filter).ToListAsync();
 return documents;
 ```
+
+- 복수의 조건으로 검색한다
 
 ```
 // Builders를 사용할 때는 Collection은 BsonDocument를 사용해야 한다.
@@ -66,12 +71,14 @@ return IDList;
 
 
 ### 특정 필드의 데이터만 가져오기
+- 도큐먼트의 모든 필드의 데이터가 아닌 일부 필드의 값만 가져온다.
 
 ```
 var collection = GetDBCollection<BsonDocument>("Basic");
 
 // Level만
 var documents = await collection.Find(new BsonDocument()).Project(BsonDocument.Parse("{Level:1}")).ToListAsync();
+
 // Level, Money만
 //var documents = await collection.Find(new BsonDocument()).Project(BsonDocument.Parse("{Level:1, Money:1}")).ToListAsync();
 ```
@@ -83,17 +90,17 @@ var documents = await collection.Find(x => true).Project(projection).ToListAsync
 ```
 
 
-### 특정 필드를 제외한 데이터만 가져오기
+### 도큐먼트의 특정 필드를 제외한 데이터만 가져오기
 
 ```
 var collection = GetDBCollection<BsonDocument>("Basic");
 
-// Level만
+// Level만 제외한다
 var documents = await collection.Find(new BsonDocument()).Project(BsonDocument.Parse("{Level:0}")).ToListAsync();
 ```
 
 
-#### Expression. 지정된 필드만, 필드를 다른 이름으로
+### Expression. 지정된 필드만, 필드를 다른 이름으로
 
 ```
 var collection = GetDBCollection<DBBasic>("Basic");
@@ -151,10 +158,12 @@ var document = await collection.Find(filter).FirstOrDefaultAsync();
 
 
 ### 배열 요소 조건 검색
-
+- 도큐먼트의 필드 중 배열이 있으 때 배열 요소 조건 검사.
+-
 ```
 var collection = GetDBCollection<DBBasic>("Basic");
 
+// Costume 리스트의 요소 중 0 보다 크거나 같은 것이 있는 도큐먼트 검색
 var filter = Builders<DBBasic>.Filter.AnyGt(x => x.Costume, 0);
 var documents = await collection.Find(filter).ToListAsync();
 

@@ -1,9 +1,7 @@
-http://qiita.com/SHUAI/items/fc154ce42d6944bcedfe
-http://qiita.com/SHUAI/items/e1f9bde6eb118de0fb88
 
+### 기본 추가
+- 클래스 맵핑으로 새 도큐먼트 추가
 
-## 기본 추가
-- 객체 맵핑으로 추가
 ```
 var newData = new DBBasic()
 {
@@ -20,6 +18,7 @@ await collection.InsertOneAsync(newData);
 ```
 
 - BsonDocument를 사용하여 추가.
+
 ```
 Int64 money = 1000;
 var Costume = new List<int>(Enumerable.Repeat(0,12));
@@ -30,9 +29,9 @@ await collection.InsertOneAsync(document);
 ```
 
 
+### 한번에 복수의 document 추가
+- 한번의 요청으로 복수의 document를 추가한다.
 
-## 한번에 복수의 document 추가
-- 한번의 insert 요청에 복수의 document를 추가한다.
 ```
 var newItemList = new List<DBUserItem>();
 
@@ -82,30 +81,28 @@ var documents = await collection.Find(new BsonDocument()).Sort("{Level: -1}").To
 ```
 
 ```
+// 복수의 조건으로 정렬
 var sort = Builders<BsonDocument>.Sort.Ascending("borough").Ascending("address.zipcode");
 var result = await collection.Find(filter).Sort(sort).ToListAsync();
 ```
 
 
-
-#### FindOneAndReplaceAsync
+### FindOneAndReplaceAsync
+- 한번에 검색&교체
 
 ```
 var collection = GetDBCollection<DBBasic>("Basic");
 
 var newData = new DBBasic()
 {
-_id = "jacking3",
-Money = 3333,
-Costume = new List<int>(Enumerable.Repeat(0, 12))
+  _id = "jacking3",
+  Money = 3333,
+  Costume = new List<int>(Enumerable.Repeat(0, 12))
 };
 
 // 변경 되기 이전 값을 반환한다. 실패하면 null
 var documents = await collection.FindOneAndReplaceAsync(x => x._id == "jacking5", newData);
 ```
-
-
-#### FindOneAndReplaceAsync
 
 ```
 var collection = GetDBCollection<BsonDocument>("Basic");
@@ -118,7 +115,7 @@ var replacement = BsonDocument.Parse("{Level: 12}");
 //var sort = BsonDocument.Parse("{a: -1}");
 var options = new FindOneAndReplaceOptions<BsonDocument, BsonDocument>()
 {
-	IsUpsert = false,
+	 IsUpsert = false, // 이것을 true로 하면 도큐먼트가 없으면 추가한다.
   	//Projection = projection,
   	//ReturnDocument = returnDocument,
   	//Sort = sort,
@@ -129,7 +126,8 @@ var documents = await collection.FindOneAndReplaceAsync<BsonDocument>(filter, re
 ```
 
 
-#### FindOneAndUpdateAsync
+### FindOneAndUpdateAsync
+- 한번에 검색&수정
 
 ```
 var collection = GetDBCollection<BsonDocument>("Basic");
@@ -147,12 +145,12 @@ var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
   	MaxTime = TimeSpan.FromSeconds(2)
 };
 
-
 var document = await collection.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None);
 ```
 
 
-#### 동적 기능 사용하기
+### 동적 기능 사용하기
+- C#의 다이나믹 타입 사용
 
 ```
 dynamic person = new System.Dynamic.ExpandoObject();
@@ -164,7 +162,9 @@ var collection = GetDBCollection<dynamic>("Persion");
 await collection.InsertOneAsync(person);
 ```
 
-#### UTC 시간 보정해서 데이터 넣기
+
+### UTC 시간 보정해서 데이터 넣기
+- MongoDB에 time 타입 데이터는 utc 기준으로 들어간다. 그래서 mongodb에서 보이는데 시간을 한국 시간과 같게 하려면 도큐먼트를 넣을 때 시간을 +9 한다.
 
 ```
 var newData = new DBTimeData()
@@ -190,7 +190,6 @@ var result = await collection.UpdateOneAsync(x => x._id == userID,
 								Builders<DBUserSkill>.Update.Set(x => x.Value, 14));
 // result.MatchedCount 가 1 보다 작으면 업데이트 한 것이 없음
 ```
-
 
 #### 도큐먼트의 내부 도큐먼트를 변경할 때
 

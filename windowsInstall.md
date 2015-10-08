@@ -11,7 +11,7 @@
 
 
 ### 서비스에 등록하기
-- 관리자 권한으로 --install 옵션을 붙여서 MongoDB를 동작하면 된다.
+- 관리자 권한으로 --install 옵션을 붙여서 MongoDB를 실행한다.
 - mongod --remove로 서비스에서 제거할 수 있다.
 
 
@@ -47,4 +47,4 @@
 
 
 ### 참고
-- http://qiita.com/moto_pipedo/items/c3bb40370ba2792143ad.
+- 이 글은 [이것](http://qiita.com/moto_pipedo/items/c3bb40370ba2792143ad)을 정리한 것이다.

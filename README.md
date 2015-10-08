@@ -1,9 +1,9 @@
 # CookBookMongoDB-CSharp
-MongoDB를 C#으로 프로그래밍 하는 방법을 설명한다
+C#으로 MongoDB를 사용하는 방법을 설명한다
 
 
 ## MongoDB 공식 C# Driver
-- 1.x와 2.x 라이브러리가 많이 다름.
+- 1.x와 2.x 라이브러리가 거의 완전 다르다.
 - [2.0 드라이버 소개](https://www.mongodb.com/blog/post/introducing-20-net-driver)
 - [레퍼런스](http://mongodb.github.io/mongo-csharp-driver/2.0/reference/)
 - [온라인 도움 문서](http://api.mongodb.org/csharp/2.0/html/R_Project_CSharpDriverDocs.htm)
@@ -26,6 +26,7 @@ MongoDB를 C#으로 프로그래밍 하는 방법을 설명한다
 
 
 ## MongoDB collection 객체 생성
+- 이 글의 코드에서 공통적으로 사용되는 것으로 MongoDB 접속 및 특정 Colection 객체를 만든다.
 
 ```
 string DBName; // 데이터베이스 이름
@@ -60,7 +61,7 @@ static IMongoClient GetDBClient(string connectString)
 }
 ```
 
-### 데이터 정의
+## 데이터 정의
 - 객체 맵핑은 class만 가능하다
 ```
 public class DBBasic
@@ -72,7 +73,6 @@ public class DBBasic
     public List<int> Costume; // 캐릭터 복장 아이템ID. 개수는 무조건 12
 }
 ```
-
 ```
 public class DBUserItem
 {
