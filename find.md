@@ -1,4 +1,20 @@
 
+### 모든 도큐먼트 가져오기
+- 클래스 맵핑
+```
+var collection = GetDBCollection<DBBasic>("Basic");
+var documents = await collection.Find(_ => true).ToListAsync();
+return documents;
+```
+
+- BsonDocument
+```
+var collection = GetDBCollection<BsonDocument>("Basic");
+var documents = await collection.Find(new BsonDocument()).ToListAsync();
+return documents;
+```
+
+
 ### 검색 시 첫 번째 도큐먼트만 가져온다
 - 클래스 맵핑 사용     
 
