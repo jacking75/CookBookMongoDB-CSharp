@@ -128,7 +128,6 @@ var documents = await collection.FindOneAndReplaceAsync<BsonDocument>(filter, re
 
 ### FindOneAndUpdateAsync
 - 한번에 검색&수정
-
 ```
 var collection = GetDBCollection<BsonDocument>("Basic");
 
@@ -146,6 +145,59 @@ var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>()
 };
 
 var document = await collection.FindOneAndUpdateAsync<BsonDocument>(filter, update, options, CancellationToken.None);
+```
+
+- BsonDocume 사용
+```
+var findUserName = textBox5.Text;
+var newNickNameList = new List<string>() { textBox1.Text, textBox6.Text };
+
+var collection = MongoDBLib.Common.GetDBCollection<BsonDocument>("GameUser2");
+
+var filter = new BsonDocument("_id", findUserName);
+var update = Builders<BsonDocument>.Update.Set("NickNameList", new BsonArray(newNickNameList));
+var options = new FindOneAndUpdateOptions<BsonDocument, BsonDocument>
+{
+    ReturnDocument = ReturnDocument.After
+};
+
+var document = await collection.FindOneAndUpdateAsync<BsonDocument>(filter, update, options);
+
+if (document == null)
+{
+    DevLog.Write(string.Format("GameUser2:{0} 닉네임 변경 실패", findUserName));
+}
+else
+{
+    var nickList = document["NickNameList"].AsBsonArray.Select(p => p.AsString).ToList();
+
+    DevLog.Write(string.Format("GameUser2:{0} 닉네임 변경 {1}, {2}", findUserName, nickList[0], nickList[1]));
+}
+```
+ 
+- 클래스 맵핑 사용
+```
+var findUserName = textBox5.Text;
+var newNickNameList = new List<string>() { textBox1.Text, textBox6.Text };
+
+var collection = MongoDBLib.Common.GetDBCollection<GameUser2>("GameUser2");
+
+var result = await collection.FindOneAndUpdateAsync<GameUser2>(
+                u => u._id == findUserName, 
+                Builders<GameUser2>.Update.Set("NickNameList", new BsonArray(newNickNameList)), 
+    new FindOneAndUpdateOptions<GameUser2, GameUser2>
+    {
+        ReturnDocument = ReturnDocument.After
+    });
+
+if (result == null)
+{
+    DevLog.Write(string.Format("GameUser2:{0} 닉네임 변경 실패", findUserName)); 
+}
+else
+{
+    DevLog.Write(string.Format("GameUser2:{0} 닉네임 변경 {1}, {2}", findUserName, result.NickNameList[0], result.NickNameList[1]));
+}
 ```
 
 
