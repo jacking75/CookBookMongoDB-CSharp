@@ -17,6 +17,7 @@ C#으로 MongoDB를 사용하는 방법을 설명한다
 - [wiredTiger 설정](wiredTiger.md)
 - [검색](find.md)
 - [추가/갱신/삭제](insert_update_delete.md)
+- [팁](tips.md)
 
 
 ## MongoDB C# 드라이버 설치
