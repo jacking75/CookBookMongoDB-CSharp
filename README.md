@@ -87,3 +87,13 @@ public class DBUserItem
     public DateTime AcquireDateTime; // 아이템 입수 시간
 }
 ```
+
+
+<br>
+<br>
+<br>
+
+### 볼 글
+- [MongoDB 3.2의 도큐먼트 검증 기능 설명](http://qiita.com/fetaro/items/97dd97046e0ba94dda40)
+- [(일어) query 예제 모음](http://qiita.com/nishina555/items/9e20211e8d6f12fdb7b7)
+- [(일어) query 예제 모음](http://qiita.com/Masaaki_Inaba/items/e35ccb58e6828ba84fc4)
