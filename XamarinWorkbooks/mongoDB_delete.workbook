@@ -1,0 +1,43 @@
+---
+uti: com.xamarin.workbook
+platforms:
+- Console
+packages:
+- id: MongoDB.Driver.Core
+  version: 2.4.4
+- id: MongoDB.Driver
+  version: 2.4.4
+- id: MongoDB.Bson
+  version: 2.4.4
+- id: System.Runtime.InteropServices.RuntimeInformation
+  version: 4.3.0
+---
+
+```csharp
+#r "MongoDB.Driver"
+```
+
+```csharp
+using MongoDB.Driver;
+
+static IMongoCollection<T> GetDBCollection<T>(string dbIP, string dbName, string collectionName)
+{
+	var database = GetMongoDatabase(dbIP, dbName); 
+	var collection = database.GetCollection<T>(collectionName);
+	return collection;
+}
+
+static IMongoDatabase GetMongoDatabase(string dbIP, string dbName)
+{
+	MongoClient cli = new MongoClient(dbIP);
+	return cli.GetDatabase(dbName);
+}
+```
+
+```csharp
+var mongoDBIP = "mongodb://localhost:27017";
+var mongoDBDatabaseName = "TestDB";
+var mongoDBCollectionName = "GameUser1";
+var Datas = GetDBCollection<MongoDB.Bson.BsonDocument>(mongoDBIP, mongoDBDatabaseName, mongoDBCollectionName);
+await Datas.DeleteManyAsync(new MongoDB.Bson.BsonDocument());
+```
