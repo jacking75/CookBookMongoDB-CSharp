@@ -299,3 +299,9 @@ var collection = GetDBCollection<DBBasic>("Basic");
 var userID = "jacking4";
 var result = await collection.DeleteOneAsync(x=> x._id == userID);
 ```
+
+#### 컬렉션의 모든 문서 삭제
+```
+var collection = GetDBCollection<DBBasic>("Basic");
+await collection.DeleteManyAsync(new MongoDB.Bson.BsonDocument());
+```
